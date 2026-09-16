@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bimanual SO-101 Table Setting</title>
+<meta name="description" content="Two simulated SO-101 arms set a dinner table from a language command: OpenVINO INT4 planner, INT8 camera perception, 10/10 randomized seeds.">
+<meta property="og:image" content="img/cover.jpg"><meta property="og:title" content="Bimanual SO-101: LLM-Planned Table Setting"><meta name="twitter:card" content="summary_large_image">
+<style>
+:root{--bg:#fbfbfa;--fg:#16181d;--mut:#5b6270;--card:#fff;--line:#e3e5e8;--acc:#0068b5;--ok:#1a7f37}
+@media (prefers-color-scheme:dark){:root{--bg:#101318;--fg:#e8eaee;--mut:#9aa3b2;--card:#171b22;--line:#2a303a;--acc:#4ea3ff;--ok:#4ac26b}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1040px;margin:0 auto;padding:40px 16px 80px}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.15;margin:0 0 8px}h2{font-size:22px;margin:48px 0 12px}
+.lede{color:var(--mut);font-size:18px;max-width:720px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:28px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}.stat b{display:block;font-size:26px}.stat span{color:var(--mut);font-size:14px}
+video{width:100%;border-radius:10px;border:1px solid var(--line);background:#000}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}.step h3{margin:0 0 6px;font-size:16px}.step p{margin:0;color:var(--mut);font-size:15px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}th{background:var(--card);color:var(--mut);font-weight:600}td:first-child,th:first-child{text-align:left}.ok{color:var(--ok);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}figure{margin:0}figure img{width:100%;border-radius:8px;border:1px solid var(--line);display:block}figcaption{font-size:13px;color:var(--mut);margin-top:4px}
+.scope{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}ul{margin:6px 0 0;padding-left:20px}
+a{color:var(--acc)}.links a{display:inline-block;margin:0 16px 8px 0;font-weight:600}
+.note{font-size:14px;color:var(--mut)}
+</style></head><body><main>
+<p class=note>Intel Physical AI Online Challenge · Bimanual VLA Manipulation · Team META FETA</p>
+<h1>Two SO-101 arms set a dinner table from a language command</h1>
+<p class=lede>MuJoCo simulation. An OpenVINO INT4 language model plans, an OpenVINO INT8 camera network localises objects, and inverse-kinematics skills drive both arms, including a spoon hand-off between them.</p>
+<p class="links"><a href="https://github.com/aristidesnakos/bimanual-so101-intel">GitHub repository</a><a href="demo.mp4">Download video</a></p>
+<div class=stats>
+<div class=stat><b>10/10</b><span>tuning seeds</span></div><div class=stat><b>10/10</b><span>hold-out seeds</span></div><div class=stat><b>10/10</b><span>left-handed layout</span></div><div class=stat><b>2.3 ms</b><span>perception, INT8 CPU</span></div><div class=stat><b>12/14</b><span>valid LLM plans</span></div></div>
+<h2>Evaluation across 10 randomized seeds</h2>
+<video controls preload="metadata" poster="img/poster.jpg" src="demo.mp4"></video>
+<p class=note>Narrated walkthrough (2:39): one full run of seed 0 with its hand-off, then all 10 randomized seeds sped up, then the final table state for every seed.</p>
+<h2>Pipeline</h2>
+<div class=steps>
+<div class=step><h3>1 · Understand</h3><p>Qwen2.5-1.5B-Instruct, INT4, served with OpenVINO GenAI, turns the instruction into a JSON plan: items, arm assignment, handedness. A left-handed request mirrors the layout.</p></div>
+<div class=step><h3>2 · Observe</h3><p>An overhead camera feeds a small U-Net segmentation model (OpenVINO INT8). Object poses come from the image, not from simulator state.</p></div>
+<div class=step><h3>3 · Act</h3><p>Damped-least-squares IK skills for both arms: open drawer, retrieve cutlery, hand off through a shared staging zone, place plate, fork and mug.</p></div>
+<div class=step><h3>4 · Optimize</h3><p>INT4 planner and INT8 perception. The bench script reports latency, throughput, device and precision for CPU, iGPU and NPU.</p></div></div>
+<h2>Per-seed results: seeds 0–9, as shown in the video</h2>
+<div class=tbl><table><thead><tr><th>Seed</th><th>Mass</th><th>Friction</th><th>Plate r</th><th>Mug r</th><th>Cutlery</th><th>Light z</th><th>Final mug placement error</th><th>Sim time</th><th>Outcome</th></tr></thead><tbody><tr><td>0</td><td>×1.74</td><td>×0.89</td><td>5.0 cm</td><td>1.4 cm</td><td>9.6 cm</td><td>1.64 m</td><td>7 mm</td><td>49.9 s</td><td class=ok>✓ complete</td></tr><tr><td>1</td><td>×0.75</td><td>×0.90</td><td>4.9 cm</td><td>1.7 cm</td><td>9.7 cm</td><td>1.36 m</td><td>5 mm</td><td>50.0 s</td><td class=ok>✓ complete</td></tr><tr><td>2</td><td>×1.70</td><td>×0.99</td><td>4.7 cm</td><td>1.4 cm</td><td>9.9 cm</td><td>1.25 m</td><td>5 mm</td><td>50.3 s</td><td class=ok>✓ complete</td></tr><tr><td>3</td><td>×0.84</td><td>×0.74</td><td>4.5 cm</td><td>1.4 cm</td><td>9.6 cm</td><td>1.45 m</td><td>7 mm</td><td>49.9 s</td><td class=ok>✓ complete</td></tr><tr><td>4</td><td>×0.66</td><td>×0.95</td><td>5.3 cm</td><td>1.5 cm</td><td>9.3 cm</td><td>1.03 m</td><td>5 mm</td><td>50.2 s</td><td class=ok>✓ complete</td></tr><tr><td>5</td><td>×0.75</td><td>×0.81</td><td>5.2 cm</td><td>1.6 cm</td><td>9.1 cm</td><td>1.08 m</td><td>5 mm</td><td>50.0 s</td><td class=ok>✓ complete</td></tr><tr><td>6</td><td>×1.69</td><td>×1.05</td><td>4.9 cm</td><td>1.4 cm</td><td>9.8 cm</td><td>1.60 m</td><td>5 mm</td><td>50.0 s</td><td class=ok>✓ complete</td></tr><tr><td>7</td><td>×1.71</td><td>×0.82</td><td>5.0 cm</td><td>1.7 cm</td><td>9.7 cm</td><td>1.06 m</td><td>4 mm</td><td>50.4 s</td><td class=ok>✓ complete</td></tr><tr><td>8</td><td>×1.09</td><td>×1.27</td><td>4.7 cm</td><td>1.7 cm</td><td>9.1 cm</td><td>1.31 m</td><td>5 mm</td><td>50.3 s</td><td class=ok>✓ complete</td></tr><tr><td>9</td><td>×1.58</td><td>×0.78</td><td>5.3 cm</td><td>1.4 cm</td><td>9.7 cm</td><td>1.40 m</td><td>5 mm</td><td>50.0 s</td><td class=ok>✓ complete</td></tr></tbody></table></div>
+<p class=note>Table colour and lighting also change per seed. Values are read from the video overlays.</p>
+<h2>Final table state, every seed</h2>
+<div class=grid><figure><img src="img/end_0.jpg" alt="Seed 0 final table state"><figcaption>Seed 0 · final state</figcaption></figure><figure><img src="img/end_1.jpg" alt="Seed 1 final table state"><figcaption>Seed 1 · final state</figcaption></figure><figure><img src="img/end_2.jpg" alt="Seed 2 final table state"><figcaption>Seed 2 · final state</figcaption></figure><figure><img src="img/end_3.jpg" alt="Seed 3 final table state"><figcaption>Seed 3 · final state</figcaption></figure><figure><img src="img/end_4.jpg" alt="Seed 4 final table state"><figcaption>Seed 4 · final state</figcaption></figure><figure><img src="img/end_5.jpg" alt="Seed 5 final table state"><figcaption>Seed 5 · final state</figcaption></figure><figure><img src="img/end_6.jpg" alt="Seed 6 final table state"><figcaption>Seed 6 · final state</figcaption></figure><figure><img src="img/end_7.jpg" alt="Seed 7 final table state"><figcaption>Seed 7 · final state</figcaption></figure><figure><img src="img/end_8.jpg" alt="Seed 8 final table state"><figcaption>Seed 8 · final state</figcaption></figure><figure><img src="img/end_9.jpg" alt="Seed 9 final table state"><figcaption>Seed 9 · final state</figcaption></figure></div>
+<h2>Scope</h2>
+<div class=scope>
+<div class=step><h3>Learned</h3><ul><li>LLM task planner (INT4)</li><li>Camera segmentation network (INT8)</li></ul></div>
+<div class=step><h3>Scripted</h3><ul><li>IK manipulation skills and hand-off</li></ul></div>
+<div class=step><h3>Not yet done</h3><ul><li>Benchmark on Intel Core Ultra (numbers so far are from a cloud CPU)</li><li>Distilled imitation policy</li><li>Pouring</li></ul></div></div>
+<p class=note style="margin-top:40px">The simulation and models run locally (MuJoCo + OpenVINO). This page presents the recorded evaluation.</p>
+</main></body></html>
